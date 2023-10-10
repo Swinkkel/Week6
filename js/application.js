@@ -62,7 +62,7 @@ const getData = async () => {
         headers: {"content-type": "application/json"},
         body: JSON.stringify(jsonQuery)
     })
-    
+
     if (!res.ok) {
         return;
     }
@@ -71,4 +71,50 @@ const getData = async () => {
     return data
 }
 
-getData()
+const buildChart = async () => {
+    const data = await getData()
+    console.log(data)
+
+    const parties = Object.values(data.dimension.Alue.category.label);
+    const years = Object.values(data.dimension.Vuosi.category.label);
+    const values = data.value;
+    
+    console.log(parties)
+    console.log(years)
+    console.log(values)
+
+    parties.forEach((party, index) => {
+        let partySupport = []
+        for(let i = 0; i < years.length; i++) {
+            partySupport.push(values[i])
+        }
+        parties[index] = {
+            name: party,
+            values: partySupport
+        }
+    })
+
+    console.log(parties)
+
+    const chartData = {
+        labels: years,
+        datasets: parties
+    }
+
+    const chart = new frappe.Chart("#chart", {
+        title: "Finnish population",
+        data: chartData,
+        type: "line",
+        height: 450,
+        colors: ['#eb5146'],
+        lineOptions: {
+            hideDots: 1,
+            regionFill: 0
+        }
+
+    })
+
+}
+
+buildChart()
+
