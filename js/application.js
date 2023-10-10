@@ -102,13 +102,12 @@ const buildChart = async () => {
     }
 
     const chart = new frappe.Chart("#chart", {
-        title: "Finnish population",
+        title: "Population growth in whole country",
         data: chartData,
         type: "line",
         height: 450,
         colors: ['#eb5146'],
         lineOptions: {
-            hideDots: 1,
             regionFill: 0
         }
 
