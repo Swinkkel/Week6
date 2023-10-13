@@ -88,25 +88,18 @@ const getData = async (query) => {
 }
 
 const buildChart = async () => {
-    console.log(kunta);
-
     // Now we need those kunta names and codes.
     const kunnat = await getKunnat();
-    console.log(kunnat);
 
     kunta_alueet = Object.values(kunnat.variables[1]);
     const index = kunta_alueet[3].findIndex(element => element.toUpperCase() === kunta.toUpperCase());
-    console.log(index);
 
     kunta_code = kunta_alueet[2][index];
-
-    console.log();
 
     let modifiedQuery = jsonQuery;
     modifiedQuery.query[1].selection.values = [kunta_code];
 
     const data = await getData(modifiedQuery)
-    console.log(data);
 
     const parties = Object.values(data.dimension.Alue.category.label);
     const years = Object.values(data.dimension.Vuosi.category.label);
