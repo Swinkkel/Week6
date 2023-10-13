@@ -54,13 +54,28 @@ const jsonQuery = {
     }
 }
 
-const getData = async () => {
+let kunta = "Whole country";
+
+const getKunnat = async () => {
+    const url = "https://statfin.stat.fi/PxWeb/api/v1/en/StatFin/synt/statfin_synt_pxt_12dy.px";
+
+    const res = await fetch(url);
+
+    if (!res.ok) {
+        return;
+    }
+    const data = await res.json()
+
+    return data
+}
+
+const getData = async (query) => {
     const url = "https://statfin.stat.fi/PxWeb/api/v1/en/StatFin/synt/statfin_synt_pxt_12dy.px";
 
     const res = await fetch(url, {
         method: "POST",
         headers: {"content-type": "application/json"},
-        body: JSON.stringify(jsonQuery)
+        body: JSON.stringify(query)
     })
 
     if (!res.ok) {
@@ -72,16 +87,31 @@ const getData = async () => {
 }
 
 const buildChart = async () => {
-    const data = await getData()
-    console.log(data)
+    console.log(kunta);
+
+    // Now we need those kunta names and codes.
+    const kunnat = await getKunnat();
+    console.log(kunnat);
+
+    kunta_alueet = Object.values(kunnat.variables[1]);
+    const index = kunta_alueet[3].findIndex(element => element.toUpperCase() === kunta.toUpperCase());
+    console.log(index);
+
+    kunta_code = kunta_alueet[2][index];
+
+    console.log();
+
+    let modifiedQuery = jsonQuery;
+    modifiedQuery.query[1].selection.values = [kunta_code];
+
+    const data = await getData(modifiedQuery)
+    console.log(data);
 
     const parties = Object.values(data.dimension.Alue.category.label);
     const years = Object.values(data.dimension.Vuosi.category.label);
     const values = data.value;
+
     
-    console.log(parties)
-    console.log(years)
-    console.log(values)
 
     parties.forEach((party, index) => {
         let partySupport = []
@@ -94,8 +124,6 @@ const buildChart = async () => {
         }
     })
 
-    console.log(parties)
-
     const chartData = {
         labels: years,
         datasets: parties
@@ -107,13 +135,42 @@ const buildChart = async () => {
         type: "line",
         height: 450,
         colors: ['#eb5146'],
-        lineOptions: {
-            regionFill: 0
-        }
-
     })
 
 }
+
+// Setup navigation button
+const nav_btn = document.getElementById("navigation");
+nav_btn.addEventListener("click", function() {
+
+    fullURL = window.location.href;
+    pageOnly = fullURL.replace(window.location.origin, '');
+    
+    console.log(pageOnly);
+
+    if (pageOnly === "/index.html")
+        window.location.href = "/newchart.html";
+    else if (pageOnly === "/newchart.html")
+        window.location.href = "/index.html";
+});
+
+// Setup submit-data button
+const submit_btn = document.getElementById("submit-data");
+submit_btn.addEventListener("click", function() {
+    const input_area_fill = document.getElementById("input-area");
+    kunta = input_area_fill.value;
+    if (kunta === null || kunta === '') {
+        kunta = "Whole country";
+    }
+
+    buildChart();
+});
+
+// Add estimated data.
+const add_data_btn = document.getElementById("add-data");
+add_data_btn.addEventListener("click", function() {
+
+});
 
 buildChart()
 
