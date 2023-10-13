@@ -137,21 +137,6 @@ const buildChart = async () => {
     })
 }
 
-// Setup navigation button
-const nav_btn = document.getElementById("navigation");
-nav_btn.addEventListener("click", function() {
-
-    fullURL = window.location.href;
-    pageOnly = fullURL.replace(window.location.origin, '');
-    
-    console.log(pageOnly);
-
-    if (pageOnly === "/index.html")
-        window.location.href = "/newchart.html";
-    else if (pageOnly === "/newchart.html")
-        window.location.href = "/index.html";
-});
-
 // Setup submit-data button
 const submit_btn = document.getElementById("submit-data");
 submit_btn.addEventListener("click", function() {
