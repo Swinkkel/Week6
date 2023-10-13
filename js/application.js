@@ -55,6 +55,7 @@ const jsonQuery = {
 }
 
 let kunta = "Whole country";
+let chart;
 
 const getKunnat = async () => {
     const url = "https://statfin.stat.fi/PxWeb/api/v1/en/StatFin/synt/statfin_synt_pxt_12dy.px";
@@ -111,8 +112,6 @@ const buildChart = async () => {
     const years = Object.values(data.dimension.Vuosi.category.label);
     const values = data.value;
 
-    
-
     parties.forEach((party, index) => {
         let partySupport = []
         for(let i = 0; i < years.length; i++) {
@@ -129,14 +128,13 @@ const buildChart = async () => {
         datasets: parties
     }
 
-    const chart = new frappe.Chart("#chart", {
+    chart = new frappe.Chart("#chart", {
         title: "Population growth in whole country",
         data: chartData,
         type: "line",
         height: 450,
         colors: ['#eb5146'],
     })
-
 }
 
 // Setup navigation button
@@ -169,7 +167,17 @@ submit_btn.addEventListener("click", function() {
 // Add estimated data.
 const add_data_btn = document.getElementById("add-data");
 add_data_btn.addEventListener("click", function() {
+    const data = chart.data.datasets[0].values;
+ 
+    // Calculate the mean value of the delta
+    let deltaSum = 0;
+    for (let i = 1; i < data.length; i++) {
+        deltaSum += data[i] - data[i - 1];
+    }
 
+    let meanDelta = deltaSum / (data.length - 1);
+        
+    chart.addDataPoint('2022', [data[data.length - 1] + meanDelta]);
 });
 
 buildChart()
